@@ -62,8 +62,6 @@ var	gulp = require('gulp'),
 
 		watch(stylesPaths, function (event) {
 
-		  livereload.listen();
-
 			if(event.path.indexOf(testFolderName)>=0){
 				conn = getFtpConnection(ftpconf.testHost);
 				env = testFolderName;
