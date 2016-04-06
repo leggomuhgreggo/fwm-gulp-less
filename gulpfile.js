@@ -64,7 +64,7 @@ gulp.task('watch', function() {
 		//less
 		.pipe( plumber({errorHandler: notify.onError({'message': 'Error: <%= error.message %>'})}) )
 		.pipe( less() )
-	    .pipe( autoprefixer('last 20 versions', 'ie 8') )		//configure autoprefixer settings
+		.pipe( autoprefixer('last 20 versions', 'ie 8') )		//configure autoprefixer settings
 		.pipe( cleanCSS({restructuring: false}) )	//process import was failing to load external css files, probably server security settings
 		.pipe( gulp.dest(event.dirname) )
 		.pipe( notify({message: "<%= options.filePath %> - Less Compiled, Prefixed and Minified"}) )
