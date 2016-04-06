@@ -19,7 +19,7 @@ var	gulp = require('gulp'),
 		'remoteFolder': '/',
 	},
 
-	baseFolder = "../fwm/",
+	baseFolder = "../",
 	testFolderName = 'fwm-test',
 	devFolderName = 'fwm-dev',
 
@@ -43,7 +43,7 @@ var	gulp = require('gulp'),
 			password: ftpconf.password,
 			parallel: 5,
 		});
-	},
+	};
 
 	gulp.task('watch', function() {
 
