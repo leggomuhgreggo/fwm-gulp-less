@@ -48,9 +48,9 @@ var	gulp = require('gulp'),
 gulp.task('watch', function() {
 
 	var lessPaths = stylesPaths.map(function(a){ return a + '.less'}),
-	env, conn;
+		env, conn;
 
-	watch(stylesPaths, function (event) {
+	watch(lessPaths, function (event) {
 
 		if(event.path.indexOf(testFolderName)>=0){
 			conn = getFtpConnection(ftpconf.testHost);
