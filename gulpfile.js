@@ -45,37 +45,37 @@ var	gulp = require('gulp'),
 		});
 	};
 
-	gulp.task('watch', function() {
+gulp.task('watch', function() {
 
-		var lessPaths = stylesPaths.map(function(a){ return a + '.less'}),
-		env, conn;
+	var lessPaths = stylesPaths.map(function(a){ return a + '.less'}),
+	env, conn;
 
-		watch(stylesPaths, function (event) {
+	watch(stylesPaths, function (event) {
 
-			if(event.path.indexOf(testFolderName)>=0){
-				conn = getFtpConnection(ftpconf.testHost);
-				env = testFolderName;
-			}else{
-				conn = getFtpConnection(ftpconf.devHost);
-				env = devFolderName;
-			}
+		if(event.path.indexOf(testFolderName)>=0){
+			conn = getFtpConnection(ftpconf.testHost);
+			env = testFolderName;
+		}else{
+			conn = getFtpConnection(ftpconf.devHost);
+			env = devFolderName;
+		}
 
-			return gulp.src( (event.path), { base: baseFolder + env } )
-			//less
-			.pipe( plumber({errorHandler: notify.onError({'message': 'Error: <%= error.message %>'})}) )
-			.pipe( less() )
+		return gulp.src( (event.path), { base: baseFolder + env } )
+		//less
+		.pipe( plumber({errorHandler: notify.onError({'message': 'Error: <%= error.message %>'})}) )
+		.pipe( less() )
 	    .pipe( autoprefixer('last 20 versions', 'ie 8') )		//configure autoprefixer settings
-			.pipe( cleanCSS({restructuring: false}) )	//process import was failing to load external css files, probably server security settings
-			.pipe( gulp.dest(event.dirname) )
-			.pipe( notify({message: "<%= options.filePath %> - Less Compiled, Prefixed and Minified"}) )
+		.pipe( cleanCSS({restructuring: false}) )	//process import was failing to load external css files, probably server security settings
+		.pipe( gulp.dest(event.dirname) )
+		.pipe( notify({message: "<%= options.filePath %> - Less Compiled, Prefixed and Minified"}) )
 
-			//ftp
-			.pipe( plumber({errorHandler: notify.onError({title: '', 'message': 'FTP Error: <%= error.message %>'})}) )
-			.pipe( conn.newer( ftpconf.remoteFolder ) ) 
-			.pipe( conn.dest( ftpconf.remoteFolder ) )
-			.pipe( notify({title: '', message: "<%= options.filePath %> - Uploaded"}) )
-		})
+		//ftp
+		.pipe( plumber({errorHandler: notify.onError({title: '', 'message': 'FTP Error: <%= error.message %>'})}) )
+		.pipe( conn.newer( ftpconf.remoteFolder ) ) 
+		.pipe( conn.dest( ftpconf.remoteFolder ) )
+		.pipe( notify({title: '', message: "<%= options.filePath %> - Uploaded"}) )
+	})
 
-		.on('error', function() {return true;})
+	.on('error', function() {return true;})
 
-	});
+});
