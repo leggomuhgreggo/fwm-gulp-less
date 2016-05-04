@@ -48,7 +48,7 @@ var	gulp = require('gulp'),
 gulp.task('watch', function() {
 
 	var lessPaths = stylesPaths.map(function(a){ return a + '.less'}),
-		env, conn;
+		env, conn, relPath;
 
 	watch(lessPaths, function (event) {
 
@@ -60,7 +60,9 @@ gulp.task('watch', function() {
 			env = devFolderName;
 		}
 
-		return gulp.src( (event.path), { base: baseFolder + env } )
+		relPath = event.dirname.split(env)[1];
+
+		return gulp.src( (event.path) )
 		//less
 		.pipe( plumber({errorHandler: notify.onError({'message': 'Error: <%= error.message %>'})}) )
 		.pipe( less() )
@@ -71,8 +73,8 @@ gulp.task('watch', function() {
 
 		//ftp
 		.pipe( plumber({errorHandler: notify.onError({title: '', 'message': 'FTP Error: <%= error.message %>'})}) )
-		.pipe( conn.newer( ftpconf.remoteFolder ) ) 
-		.pipe( conn.dest( ftpconf.remoteFolder ) )
+		.pipe( conn.newer( ftpconf.remoteFolder + relPath ) ) 
+		.pipe( conn.dest( ftpconf.remoteFolder + relPath ) )
 		.pipe( notify({title: '', message: "<%= options.filePath %> - Uploaded"}) )
 	})
 
