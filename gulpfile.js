@@ -20,8 +20,8 @@ var	gulp = require('gulp'),
 	},
 
 	baseFolder = "../",
-	testFolderName = 'fwm-test',
-	devFolderName = 'fwm-dev',
+	testFolderName = 'FosterWeb',
+	devFolderName = 'FosterWebDev',
 
 	stylesPaths = [
 		baseFolder + testFolderName + '/*/includes/default/*',
@@ -52,7 +52,7 @@ gulp.task('watch', function() {
 
 	watch(lessPaths, function (event) {
 
-		if(event.path.indexOf(testFolderName)>=0){
+		if( event.path.indexOf(testFolderName) >= 0 && event.path.indexOf(devFolderName) < 0 ){
 			conn = getFtpConnection(ftpconf.testHost);
 			env = testFolderName;
 		}else{
