@@ -9,6 +9,8 @@ var	gulp = require('gulp'),
 	ftp = require('vinyl-ftp'),
 	plumber = require('gulp-plumber'),
 	notify = require('gulp-notify'),
+	change = require('gulp-change'),
+	gulpif = require('gulp-if'),
 
 	ftpconf = {
 		'username': 'un',
@@ -33,6 +35,25 @@ var	gulp = require('gulp'),
 		baseFolder + devFolderName + '/fosterwebmarketing.com/subdomains/*/includes/default/*',
 	],
 
+	hasAssetVersion = false,
+
+	versionMeta = function(content) {
+		var str = content,
+		    holder, vArr, regex;
+
+		if(str.match(/assets_version/) !== null ){
+			regex = /request\.assets_version.*\=.['"](.*)['"]/;
+			holder = str.match(regex)[1];
+			vArr = holder.split('.');
+			vArr[vArr.length-1] = (vArr[vArr.length-1]*1+1);
+			vArr = vArr.join('.');
+			str = str.replace(str.match(regex)[1],vArr);
+			hasAssetVersion = true;
+		}
+
+		return str
+	},
+
 	onError = function(err) {notify(err)},
 
 	getFtpConnection = function(getHost) {  
@@ -41,7 +62,7 @@ var	gulp = require('gulp'),
 			port: ftpconf.port,
 			user: ftpconf.username,
 			password: ftpconf.password,
-			parallel: 5,
+			parallel: 10,
 		});
 	};
 
@@ -63,21 +84,27 @@ gulp.task('watch', function() {
 		relPath = event.dirname.split(env)[1];
 
 		return gulp.src( (event.path) )
-		//less
-		.pipe( plumber({errorHandler: notify.onError({'message': 'Error: <%= error.message %>'})}) )
-		.pipe( less() )
-		.pipe( autoprefixer('last 20 versions', 'ie 8') )		//configure autoprefixer settings
-		.pipe( cleanCSS({restructuring: false}) )	//process import was failing to load external css files, probably server security settings
-		.pipe( gulp.dest(event.dirname) )
-		.pipe( notify({message: "<%= options.filePath %> - Less Compiled, Prefixed and Minified"}) )
+			//less
+			.pipe( plumber({errorHandler: notify.onError({'message': 'Error: <%= error.message %>'})}) )
+			.pipe( less() )
+			.pipe( autoprefixer('last 20 versions', 'ie 8') )		//configure autoprefixer settings
+			.pipe( cleanCSS({restructuring: false}) )	//process import was failing to load external css files, probably server security settings
+			.pipe( gulp.dest(event.dirname) )
+			.pipe( notify({message: "<%= options.filePath %> - Less Compiled, Prefixed and Minified"}) )
 
-		//ftp
-		.pipe( plumber({errorHandler: notify.onError({title: '', 'message': 'FTP Error: <%= error.message %>'})}) )
-		.pipe( conn.newer( ftpconf.remoteFolder + relPath ) ) 
-		.pipe( conn.dest( ftpconf.remoteFolder + relPath ) )
-		.pipe( notify({title: '', message: "<%= options.filePath %> - Uploaded"}) )
+			//up CSS
+			.pipe( plumber({errorHandler: notify.onError({title: '', 'message': 'FTP Error: <%= error.message %>'})}) )
+			.pipe( conn.dest( ftpconf.remoteFolder + relPath ) )
+			.pipe( notify({title: '', message: "<%= options.filePath %> - Uploaded"}) )
+
+			//dl version up meta 
+			.pipe( conn.src(ftpconf.remoteFolder + relPath + '/meta-default.cfm') )
+	        .pipe( change(versionMeta) )
+	        .pipe( gulp.dest(event.dirname) )
+			.pipe( gulpif(hasAssetVersion, conn.dest( ftpconf.remoteFolder + relPath), notify({message: "old meta change it urself"}) ) )
+			.pipe( gulpif(hasAssetVersion, notify({message: "Versioned & uploaded meta-default"}) ) )
 	})
-
+ 
 	.on('error', function() {return true;})
 
 });
