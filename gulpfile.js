@@ -22,8 +22,8 @@ var	gulp = require('gulp'),
 	},
 
 	baseFolder = "../",
-	testFolderName = 'FosterWeb',
-	devFolderName = 'FosterWebDev',
+	testFolderName = 'fwm-test',
+	devFolderName = 'fwm-dev',
 
 	stylesPaths = [
 		baseFolder + testFolderName + '/*/includes/default/*',
